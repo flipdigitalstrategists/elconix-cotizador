@@ -256,8 +256,6 @@ document.getElementById("downloadPDF").onclick = async () => {
   const canvas = await html2canvas(node, {
     scale: 2,
     backgroundColor: "#fff",
-    x: 20,
-    y: 20,
     scrollX: 0,
     scrollY: 0,
     windowWidth: document.body.scrollWidth,
@@ -273,11 +271,13 @@ document.getElementById("downloadPDF").onclick = async () => {
 
   const w = pdf.internal.pageSize.getWidth();
   const h = pdf.internal.pageSize.getHeight();
-  const margin = 30;
+  const margin = 40; // antes 30
   const imgW = w - margin * 2;
   const imgH = (canvas.height * imgW) / canvas.width;
 
-  pdf.addImage(imgData, "PNG", margin, margin, imgW, imgH);
+  // centrar verticalmente si sobra espacio
+  const yOffset = Math.max((h - imgH) / 2, margin);
+  pdf.addImage(imgData, "PNG", margin, yOffset, imgW, imgH);
   pdf.save(`${state.title.replace(/\s+/g, "_")}.pdf`);
 };
 
