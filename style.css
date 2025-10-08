@@ -9,7 +9,7 @@
 
 :root {
   --green: #77AB30;
-  --green2: #77AB30;
+  --green2: #8DC63F;
   --text: #333;
   --halo: 0 14px 32px rgba(119,171,48,.18);
 }
@@ -207,7 +207,7 @@ button {
   padding: 8px 14px;
   text-align: right;
   font: 700 13px "ClanOT-NarrowMedium";
-  color: #4c8e24;
+  color: #77AB30;
 }
 .subtotal {
   background: rgba(141,198,63,.12);
