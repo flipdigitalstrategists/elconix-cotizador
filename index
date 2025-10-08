@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elconix Cotizador</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <div class="editor">
+      <h1>Editor de Cotización</h1>
+      <input id="titleInput" type="text" value="RESUMEN DE PROPUESTA ECONÓMICA" />
+      <button id="addTable">+ Añadir tabla</button>
+      <input id="noteInput" type="text" placeholder="Nota opcional" />
+      <button id="downloadPNG">Descargar PNG</button>
+    </div>
+
+    <div class="preview">
+      <div id="capture" class="canvas">
+        <h2 id="titleDisplay" class="title"></h2>
+        <div id="tablesContainer"></div>
+        <div id="noteDisplay" class="note"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
