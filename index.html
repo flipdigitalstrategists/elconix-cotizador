@@ -2,37 +2,55 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Elconix Cotizador</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css"/>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </head>
 <body>
   <div class="container">
     <!-- PANEL IZQUIERDO -->
-    <div class="editor">
+    <aside class="editor">
       <h1>Editor de Cotización</h1>
 
-      <label for="titleInput">Título:</label>
-      <input id="titleInput" type="text" value="RESUMEN DE PROPUESTA ECONÓMICA" />
+      <label for="titleInput">Título</label>
+      <input id="titleInput" type="text" value="RESUMEN DE PROPUESTA ECONÓMICA"/>
+
+      <div class="logoInputs">
+        <div>
+          <label>Logo cliente</label>
+          <input id="logoClient" type="file" accept="image/*"/>
+        </div>
+        <div>
+          <label>Logo Elconix</label>
+          <input id="logoOwn" type="file" accept="image/*"/>
+        </div>
+      </div>
 
       <button id="addTable">+ Añadir tabla</button>
+
       <div id="tableForms"></div>
 
-      <label for="noteInput">Nota (opcional):</label>
-      <input id="noteInput" type="text" placeholder="Ej. Precios en USD + ITBMS" />
+      <label for="noteInput">Nota (opcional)</label>
+      <input id="noteInput" type="text" placeholder="Ej. Precios no incluyen ITBMS (sumar el 7%)"/>
 
       <button id="downloadPNG">Descargar PNG Global</button>
-    </div>
+    </aside>
 
-    <!-- PREVIEW -->
-    <div class="preview">
+    <!-- PREVIEW / PNG -->
+    <main class="preview">
       <div id="capture" class="canvas">
+        <!-- Cabecera logos (solo visible si hay logos) -->
+        <div id="logosBar" class="logosBar hidden">
+          <img id="clientImg" alt="logo cliente"/>
+          <img id="ownImg" alt="logo Elconix"/>
+        </div>
+
         <h2 id="titleDisplay" class="title"></h2>
         <div id="tablesContainer"></div>
         <div id="noteDisplay" class="note"></div>
       </div>
-    </div>
+    </main>
   </div>
 
   <script src="script.js"></script>
