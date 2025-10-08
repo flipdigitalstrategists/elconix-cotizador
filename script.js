@@ -1,205 +1,267 @@
+// ======= ESTADO =======
 const state = {
   title: "RESUMEN DE PROPUESTA ECONÓMICA",
   note: "",
+  clientLogo: null,
+  ownLogo: null,
   tables: [
     {
       title: "PAGOS ÚNICOS ERP Y POS",
       rows: [
         ["Set up CLOUD Elconix PLATAFORMA ELCONIX", 7500],
-        ["Implementación x 250 hrs", 25000],
+        ["Implementación x 250 hrs\nHoras para llevar todo el proceso de puesta en marcha.", 25000],
         ["Entrenamientos x10 hrs", 1500],
         ["Adecuaciones menores x 100 hrs", 9500],
+        ["Integración con PAC WEB POS", 3000],
+        ["Aplicativo PDT ELCONIX", 5000],
+        ["Licencias 21 POS SERVER", 12600],
+      ],
+    },
+    {
+      title: "FORMA DE PAGO ERP Y POS",
+      rows: [
+        ["50% CONTRA FIRMA", 43017.50],
+        ["50% EN DOCE (12) MENSUALIDADES de $3,584.79, PAGADERAS TREINTA (30) DÍAS DESPUÉS DEL APGO DEL ABONO INICIAL.", 43017.50],
+      ],
+    },
+    {
+      title: "ANUALIDAD ERP Y POS",
+      rows: [
+        ["Licencias 15 Usuarios ERP PRO", 13500],
+        ["Licencias POS 39 usuarios punto de venta", 6435],
+        ["Anualidad de Mantenimiento API de Integración ENX", 1000],
+        ["ARPIA CREDITS", 1000],
       ],
     },
   ],
 };
 
-function fmt(n) {
-  return "$" + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2 });
-}
+// ======= UTIL =======
+const fmt = n => "$" + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2 });
 
+// ======= ELEMENTOS =======
 const titleInput = document.getElementById("titleInput");
 const noteInput = document.getElementById("noteInput");
+const tableForms = document.getElementById("tableForms");
+const tablesContainer = document.getElementById("tablesContainer");
 const titleDisplay = document.getElementById("titleDisplay");
 const noteDisplay = document.getElementById("noteDisplay");
-const tablesContainer = document.getElementById("tablesContainer");
-const tableForms = document.getElementById("tableForms");
+const logosBar = document.getElementById("logosBar");
+const clientImg = document.getElementById("clientImg");
+const ownImg = document.getElementById("ownImg");
+const logoClientInput = document.getElementById("logoClient");
+const logoOwnInput = document.getElementById("logoOwn");
 
-// === RENDER PREVIEW ===
+// ======= RENDER PREVIEW =======
 function renderPreview() {
   titleDisplay.textContent = state.title;
   noteDisplay.textContent = state.note;
+
+  // Logos
+  if (state.clientLogo || state.ownLogo) {
+    logosBar.classList.remove("hidden");
+    if (state.clientLogo) clientImg.src = state.clientLogo; else clientImg.removeAttribute("src");
+    if (state.ownLogo) ownImg.src = state.ownLogo; else ownImg.removeAttribute("src");
+  } else {
+    logosBar.classList.add("hidden");
+  }
+
+  // Tablas
   tablesContainer.innerHTML = "";
+  state.tables.forEach((table, i) => {
+    const wrap = document.createElement("div");
+    wrap.className = "tableWrap";
+    wrap.id = `wrap-${i}`;
 
-  state.tables.forEach((table, index) => {
-    const div = document.createElement("div");
-    div.className = "table";
-    div.id = `table-${index}`;
+    const card = document.createElement("div");
+    card.className = "table";
+    card.id = `table-${i}`;
 
+    // Header
     const header = document.createElement("div");
     header.className = "table-header";
-    header.textContent = table.title;
-    div.appendChild(header);
+    const left = document.createElement("div");
+    left.textContent = table.title;
+    const right = document.createElement("div");
+    right.className = "header-right";
+    right.textContent = "MONTO";
+    header.append(left, right);
+
+    const body = document.createElement("div");
+    body.className = "table-body";
 
     let subtotal = 0;
-    table.rows.forEach(([desc, amt]) => {
+    table.rows.forEach(([desc, amount]) => {
       const row = document.createElement("div");
-      row.className = "table-row editable";
-      row.innerHTML = `<span contenteditable="true">${desc}</span><span contenteditable="true">${fmt(amt)}</span>`;
-      div.appendChild(row);
-      subtotal += Number(amt);
+      row.className = "row";
+
+      const c1 = document.createElement("div");
+      c1.className = "cell-desc";
+      c1.setAttribute("contenteditable", "true");
+      c1.textContent = desc;
+
+      const c2 = document.createElement("div");
+      c2.className = "cell-amt";
+      c2.setAttribute("contenteditable", "true");
+      c2.textContent = fmt(amount);
+
+      row.append(c1, c2);
+      body.appendChild(row);
+
+      subtotal += Number(amount || 0);
     });
 
-    const sub = document.createElement("div");
-    sub.className = "subtotal";
-    sub.innerHTML = `Subtotal: ${fmt(subtotal)}`;
-    div.appendChild(sub);
+    const foot = document.createElement("div");
+    foot.className = "subtotal";
+    foot.innerHTML = `<div style="text-align:right">Subtotal:</div><div style="text-align:right">${fmt(subtotal)}</div>`;
 
-    tablesContainer.appendChild(div);
+    card.append(header, body, foot);
+    wrap.appendChild(card);
+    tablesContainer.appendChild(wrap);
   });
 }
 
-// === FORMULARIO ===
+// ======= FORM EDITOR =======
 function renderForms() {
   tableForms.innerHTML = "";
   state.tables.forEach((table, tIndex) => {
-    const section = document.createElement("div");
-    section.className = "form-section";
-
-    section.innerHTML = `
+    const box = document.createElement("div");
+    box.className = "form-section";
+    box.innerHTML = `
       <input class="table-title" type="text" value="${table.title}" data-tindex="${tIndex}" />
       <div class="rows"></div>
       <button class="add-row" data-tindex="${tIndex}">+ Fila</button>
-      <button class="download-single" data-index="${tIndex}">Descargar PNG</button>
+      <button class="download-single" data-index="${tIndex}">Descargar PNG de esta tabla</button>
+      <button class="delete-table" data-index="${tIndex}">Eliminar tabla</button>
     `;
 
-    const rowsContainer = section.querySelector(".rows");
+    const rows = box.querySelector(".rows");
     table.rows.forEach(([desc, amt], rIndex) => {
-      const rowDiv = document.createElement("div");
-      rowDiv.className = "row-form";
-      rowDiv.innerHTML = `
+      const r = document.createElement("div");
+      r.className = "row-form";
+      r.innerHTML = `
         <input class="desc" type="text" value="${desc}" data-tindex="${tIndex}" data-rindex="${rIndex}" />
-        <input class="amt" type="number" value="${amt}" data-tindex="${tIndex}" data-rindex="${rIndex}" />
+        <input class="amt" type="number" value="${amt}" step="0.01" data-tindex="${tIndex}" data-rindex="${rIndex}" />
         <button class="del-row" data-tindex="${tIndex}" data-rindex="${rIndex}">✕</button>
       `;
-      rowsContainer.appendChild(rowDiv);
+      rows.appendChild(r);
     });
 
-    tableForms.appendChild(section);
+    tableForms.appendChild(box);
   });
-  addListeners();
+  attachFormEvents();
 }
 
-function addListeners() {
-  document.querySelectorAll(".table-title").forEach((el) => {
-    el.oninput = (e) => {
-      const idx = e.target.dataset.tindex;
-      state.tables[idx].title = e.target.value;
-      renderPreview();
-    };
+function attachFormEvents() {
+  // Título de tabla
+  document.querySelectorAll(".table-title").forEach(el=>{
+    el.oninput = e => { const i = +e.target.dataset.tindex; state.tables[i].title = e.target.value; renderPreview(); };
   });
-
-  document.querySelectorAll(".desc").forEach((el) => {
-    el.oninput = (e) => {
-      const { tindex, rindex } = e.target.dataset;
-      state.tables[tindex].rows[rindex][0] = e.target.value;
-      renderPreview();
-    };
+  // Descripciones
+  document.querySelectorAll(".desc").forEach(el=>{
+    el.oninput = e => { const t = +e.target.dataset.tindex; const r = +e.target.dataset.rindex; state.tables[t].rows[r][0] = e.target.value; renderPreview(); };
   });
-
-  document.querySelectorAll(".amt").forEach((el) => {
-    el.oninput = (e) => {
-      const { tindex, rindex } = e.target.dataset;
-      state.tables[tindex].rows[rindex][1] = parseFloat(e.target.value || 0);
-      renderPreview();
-    };
+  // Montos
+  document.querySelectorAll(".amt").forEach(el=>{
+    el.oninput = e => { const t = +e.target.dataset.tindex; const r = +e.target.dataset.rindex; state.tables[t].rows[r][1] = parseFloat(e.target.value||0); renderPreview(); };
   });
-
-  document.querySelectorAll(".del-row").forEach((btn) => {
-    btn.onclick = (e) => {
-      const { tindex, rindex } = e.target.dataset;
-      state.tables[tindex].rows.splice(rindex, 1);
-      renderForms();
-      renderPreview();
-    };
+  // Borrar fila
+  document.querySelectorAll(".del-row").forEach(btn=>{
+    btn.onclick = e => { const t=+btn.dataset.tindex, r=+btn.dataset.rindex; state.tables[t].rows.splice(r,1); renderForms(); renderPreview(); };
   });
-
-  document.querySelectorAll(".add-row").forEach((btn) => {
-    btn.onclick = (e) => {
-      const { tindex } = e.target.dataset;
-      state.tables[tindex].rows.push(["Nuevo item", 0]);
-      renderForms();
-      renderPreview();
-    };
+  // Añadir fila
+  document.querySelectorAll(".add-row").forEach(btn=>{
+    btn.onclick = e => { const t=+btn.dataset.tindex; state.tables[t].rows.push(["Nuevo item",0]); renderForms(); renderPreview(); };
   });
+  // Eliminar tabla
+  document.querySelectorAll(".delete-table").forEach(btn=>{
+    btn.onclick = () => { const t=+btn.dataset.index; state.tables.splice(t,1); renderForms(); renderPreview(); };
+  });
+  // Descargar individual (con sombra, padding extra y transparencia)
+  document.querySelectorAll(".download-single").forEach(btn=>{
+    btn.onclick = async () => {
+      const t = +btn.dataset.index;
+      const wrap = document.getElementById(`wrap-${t}`);
+      // Clon temporal con padding extra para asegurar buen recorte de sombras
+      const clone = wrap.cloneNode(true);
+      clone.style.position = "fixed";
+      clone.style.left = "-99999px";
+      clone.style.top = "0";
+      document.body.appendChild(clone);
+      const canvas = await html2canvas(clone, {scale:2, backgroundColor:null});
+      document.body.removeChild(clone);
 
-  document.querySelectorAll(".download-single").forEach((btn) => {
-    btn.onclick = async (e) => {
-      const idx = e.target.dataset.index;
-      const el = document.getElementById(`table-${idx}`);
-      const canvas = await html2canvas(el, { scale: 2 });
-      const link = document.createElement("a");
-      link.download = `${state.tables[idx].title.replace(/\s+/g, "_")}.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
+      const a = document.createElement("a");
+      a.download = `${state.tables[t].title.replace(/\s+/g,"_")}.png`;
+      a.href = canvas.toDataURL("image/png");
+      a.click();
     };
   });
 }
 
-// === EVENTOS ===
+// ======= EVENTOS GENERALES =======
 document.getElementById("addTable").onclick = () => {
-  state.tables.push({ title: "Nueva Tabla", rows: [] });
-  renderForms();
-  renderPreview();
+  state.tables.push({ title:"Nueva Tabla", rows:[] });
+  renderForms(); renderPreview();
 };
 
-titleInput.oninput = (e) => {
-  state.title = e.target.value;
-  renderPreview();
+titleInput.oninput = e => { state.title = e.target.value; renderPreview(); };
+noteInput.oninput  = e => { state.note  = e.target.value;  renderPreview(); };
+
+// Subir logos
+const fileToDataURL = file => new Promise(res => { const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); });
+logoClientInput.onchange = async e => {
+  if(e.target.files && e.target.files[0]) { state.clientLogo = await fileToDataURL(e.target.files[0]); renderPreview(); }
+};
+logoOwnInput.onchange = async e => {
+  if(e.target.files && e.target.files[0]) { state.ownLogo = await fileToDataURL(e.target.files[0]); renderPreview(); }
 };
 
-noteInput.oninput = (e) => {
-  state.note = e.target.value;
-  renderPreview();
-};
-
+// Descarga global (con logos si existen)
 document.getElementById("downloadPNG").onclick = async () => {
-  const el = document.getElementById("capture");
-  const canvas = await html2canvas(el, { scale: 2 });
-  const link = document.createElement("a");
-  link.download = "cotizacion-elconix.png";
-  link.href = canvas.toDataURL("image/png");
-  link.click();
+  const node = document.getElementById("capture");
+  const canvas = await html2canvas(node, { scale: 2, backgroundColor:null });
+  const a = document.createElement("a");
+  a.download = "cotizacion-elconix.png";
+  a.href = canvas.toDataURL("image/png");
+  a.click();
 };
 
-// === CONTEXT MENU PARA CAMBIO DE FUENTE ===
-document.addEventListener("contextmenu", function (event) {
-  const target = event.target;
-  if (target.isContentEditable) {
-    event.preventDefault();
-
+// ======= CONTEXT MENU (fuente y tamaño) =======
+document.addEventListener("contextmenu", (e)=>{
+  const t = e.target;
+  if(t && t.isContentEditable){
+    e.preventDefault();
     const menu = document.createElement("div");
     menu.className = "context-menu";
     menu.innerHTML = `
-      <button data-font="ClanOT-NarrowBook">Book</button>
-      <button data-font="ClanOT-NarrowMedium">Medium</button>
+      <div><strong style="padding:6px 10px; display:block">Formato</strong></div>
+      <div class="group">
+        <button data-type="font" data-val="ClanOT-NarrowBook">Fuente: Book</button>
+        <button data-type="font" data-val="ClanOT-NarrowMedium">Fuente: Medium</button>
+      </div>
+      <div class="group">
+        <button data-type="size" data-val="12">Tamaño: 12</button>
+        <button data-type="size" data-val="14">Tamaño: 14</button>
+        <button data-type="size" data-val="16">Tamaño: 16</button>
+      </div>
     `;
     document.body.appendChild(menu);
+    menu.style.left = `${e.pageX}px`;
+    menu.style.top  = `${e.pageY}px`;
 
-    menu.style.left = `${event.pageX}px`;
-    menu.style.top = `${event.pageY}px`;
-
-    menu.querySelectorAll("button").forEach((btn) => {
-      btn.onclick = () => {
-        target.style.fontFamily = `"${btn.dataset.font}", sans-serif`;
+    menu.querySelectorAll("button").forEach(btn=>{
+      btn.onclick = ()=>{
+        const type = btn.dataset.type, val = btn.dataset.val;
+        if(type==="font")  t.style.fontFamily = `"${val}", Arial, sans-serif`;
+        if(type==="size")  t.style.fontSize   = `${val}px`;
         menu.remove();
       };
     });
-
-    document.addEventListener("click", () => menu.remove(), { once: true });
+    document.addEventListener("click", ()=>menu.remove(), { once:true });
   }
 });
 
-// === INICIO ===
+// ======= INICIO =======
 renderForms();
 renderPreview();
