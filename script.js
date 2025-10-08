@@ -11,21 +11,6 @@ const state = {
         ["Adecuaciones menores x 100 hrs", 9500],
       ],
     },
-    {
-      title: "FORMA DE PAGO ERP Y POS",
-      rows: [
-        ["50% contra firma", 43017.5],
-        ["50% en 12 mensualidades", 43017.5],
-      ],
-    },
-    {
-      title: "ANUALIDAD ERP Y POS",
-      rows: [
-        ["Licencias 15 usuarios ERP PRO", 13500],
-        ["Licencias POS 39 usuarios", 6435],
-        ["ARPIA CREDITS", 1000],
-      ],
-    },
   ],
 };
 
@@ -33,7 +18,6 @@ function fmt(n) {
   return "$" + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2 });
 }
 
-// === ELEMENTOS ===
 const titleInput = document.getElementById("titleInput");
 const noteInput = document.getElementById("noteInput");
 const titleDisplay = document.getElementById("titleDisplay");
@@ -54,10 +38,7 @@ function renderPreview() {
 
     const header = document.createElement("div");
     header.className = "table-header";
-    header.innerHTML = `
-      <span>${table.title}</span>
-      <button class="download-single" data-index="${index}">↓ PNG</button>
-    `;
+    header.textContent = table.title;
     div.appendChild(header);
 
     let subtotal = 0;
@@ -76,22 +57,9 @@ function renderPreview() {
 
     tablesContainer.appendChild(div);
   });
-
-  // === DESCARGA INDIVIDUAL ===
-  document.querySelectorAll(".download-single").forEach((btn) => {
-    btn.onclick = async (e) => {
-      const idx = e.target.dataset.index;
-      const el = document.getElementById(`table-${idx}`);
-      const canvas = await html2canvas(el, { scale: 2 });
-      const link = document.createElement("a");
-      link.download = `${state.tables[idx].title.replace(/\s+/g, "_")}.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    };
-  });
 }
 
-// === FORMULARIO DE TABLAS ===
+// === FORMULARIO ===
 function renderForms() {
   tableForms.innerHTML = "";
   state.tables.forEach((table, tIndex) => {
@@ -102,10 +70,10 @@ function renderForms() {
       <input class="table-title" type="text" value="${table.title}" data-tindex="${tIndex}" />
       <div class="rows"></div>
       <button class="add-row" data-tindex="${tIndex}">+ Fila</button>
+      <button class="download-single" data-index="${tIndex}">Descargar PNG</button>
     `;
 
     const rowsContainer = section.querySelector(".rows");
-
     table.rows.forEach(([desc, amt], rIndex) => {
       const rowDiv = document.createElement("div");
       rowDiv.className = "row-form";
@@ -164,9 +132,21 @@ function addListeners() {
       renderPreview();
     };
   });
+
+  document.querySelectorAll(".download-single").forEach((btn) => {
+    btn.onclick = async (e) => {
+      const idx = e.target.dataset.index;
+      const el = document.getElementById(`table-${idx}`);
+      const canvas = await html2canvas(el, { scale: 2 });
+      const link = document.createElement("a");
+      link.download = `${state.tables[idx].title.replace(/\s+/g, "_")}.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    };
+  });
 }
 
-// === BOTONES ===
+// === EVENTOS ===
 document.getElementById("addTable").onclick = () => {
   state.tables.push({ title: "Nueva Tabla", rows: [] });
   renderForms();
@@ -183,7 +163,6 @@ noteInput.oninput = (e) => {
   renderPreview();
 };
 
-// === DESCARGA GLOBAL ===
 document.getElementById("downloadPNG").onclick = async () => {
   const el = document.getElementById("capture");
   const canvas = await html2canvas(el, { scale: 2 });
@@ -193,7 +172,7 @@ document.getElementById("downloadPNG").onclick = async () => {
   link.click();
 };
 
-// === CONTEXT MENU CAMBIO DE FUENTE ===
+// === CONTEXT MENU PARA CAMBIO DE FUENTE ===
 document.addEventListener("contextmenu", function (event) {
   const target = event.target;
   if (target.isContentEditable) {
