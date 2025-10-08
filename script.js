@@ -1,13 +1,11 @@
-// ======= ESTADO =======
+// ======= STATE =======
 const state = {
   title: "RESUMEN DE PROPUESTA ECONÓMICA",
-  note: "",
+  note: "Precios no incluye ITBMS, sumar el 7%",
   clientLogo: null,
   ownLogo: null,
-  // Orden correcto por defecto:
   tables: [
-    {
-      title: "PAGOS ÚNICOS ERP Y POS",
+    { title: "PAGOS ÚNICOS ERP Y POS",
       rows: [
         ["Set up CLOUD Elconix PLATAFORMA ELCONIX", 7500],
         ["Implementación x 250 hrs\nHoras para llevar todo el proceso de puesta en marcha.", 25000],
@@ -16,32 +14,27 @@ const state = {
         ["Integración con PAC WEB POS", 3000],
         ["Aplicativo PDT ELCONIX", 5000],
         ["Licencias 21 POS SERVER", 12600],
-      ],
-    },
-    {
-      title: "FORMA DE PAGO ERP Y POS",
+      ]},
+    { title: "FORMA DE PAGO ERP Y POS",
       rows: [
         ["50% CONTRA FIRMA", 43017.50],
         ["50% EN DOCE (12) MENSUALIDADES de $3,584.79, PAGADERAS TREINTA (30) DÍAS DESPUÉS DEL APGO DEL ABONO INICIAL.", 43017.50],
-      ],
-    },
-    {
-      title: "ANUALIDAD ERP Y POS",
+      ]},
+    { title: "ANUALIDAD ERP Y POS",
       rows: [
         ["Licencias 15 Usuarios ERP PRO", 13500],
         ["Licencias POS 39 usuarios punto de venta", 6435],
         ["Anualidad de Mantenimiento API de Integración ENX", 1000],
         ["ARPIA CREDITS", 1000],
-      ],
-    },
-  ],
+      ]},
+  ]
 };
 
-// ======= UTIL =======
+// ===== UTIL =====
 const fmt = n => "$" + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2 });
 const fileToDataURL = file => new Promise(res => { const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); });
 
-// ======= ELEMENTOS =======
+// ELEMENTOS
 const titleInput = document.getElementById("titleInput");
 const noteInput = document.getElementById("noteInput");
 const tableForms = document.getElementById("tableForms");
@@ -51,10 +44,8 @@ const noteDisplay = document.getElementById("noteDisplay");
 const logosBar = document.getElementById("logosBar");
 const clientImg = document.getElementById("clientImg");
 const ownImg = document.getElementById("ownImg");
-const logoClientInput = document.getElementById("logoClient");
-const logoOwnInput = document.getElementById("logoOwn");
 
-// ======= RENDER PREVIEW =======
+// ===== RENDER PREVIEW =====
 function renderPreview() {
   titleDisplay.textContent = state.title;
   noteDisplay.textContent = state.note;
@@ -62,206 +53,146 @@ function renderPreview() {
   // Logos
   if (state.clientLogo || state.ownLogo) {
     logosBar.classList.remove("hidden");
-    clientImg.style.display = state.clientLogo ? "block" : "none";
-    ownImg.style.display = state.ownLogo ? "block" : "none";
-    if (state.clientLogo) clientImg.src = state.clientLogo;
-    if (state.ownLogo) ownImg.src = state.ownLogo;
-  } else {
-    logosBar.classList.add("hidden");
-  }
+    if (state.clientLogo) clientImg.src = state.clientLogo; else clientImg.style.display="none";
+    if (state.ownLogo) ownImg.src = state.ownLogo; else ownImg.style.display="none";
+  } else logosBar.classList.add("hidden");
 
-  // Tablas
   tablesContainer.innerHTML = "";
-  state.tables.forEach((table, i) => {
-    const wrap = document.createElement("div");
-    wrap.className = "tableWrap";
-    wrap.id = `wrap-${i}`;
+  state.tables.forEach((table,i)=>{
+    const wrap = document.createElement("div"); wrap.className="tableWrap";
+    const card = document.createElement("div"); card.className="table";
 
-    const card = document.createElement("div");
-    card.className = "table";
-    card.id = `table-${i}`;
+    const head = document.createElement("div");
+    head.className="table-header";
+    head.innerHTML = `<div>${table.title}</div><div style="text-align:right">MONTO</div>`;
 
-    // Header
-    const header = document.createElement("div");
-    header.className = "table-header";
-    const left = document.createElement("div");
-    left.textContent = table.title;
-    const right = document.createElement("div");
-    right.className = "header-right";
-    right.textContent = "MONTO";
-    header.append(left, right);
-
-    const body = document.createElement("div");
-    body.className = "table-body";
-
-    let subtotal = 0;
-    table.rows.forEach(([desc, amount]) => {
-      const row = document.createElement("div");
-      row.className = "row";
-
-      const c1 = document.createElement("div");
-      c1.className = "cell-desc";
-      c1.setAttribute("contenteditable", "true");
-      c1.textContent = desc;
-
-      const c2 = document.createElement("div");
-      c2.className = "cell-amt";
-      c2.setAttribute("contenteditable", "true");
-      c2.textContent = fmt(amount);
-
-      row.append(c1, c2);
-      body.appendChild(row);
-
-      subtotal += Number(amount || 0);
+    const body = document.createElement("div"); body.className="table-body";
+    let subtotal=0;
+    table.rows.forEach(([d,a])=>{
+      const row=document.createElement("div"); row.className="row";
+      const c1=document.createElement("div"); c1.className="cell-desc"; c1.setAttribute("contenteditable","true"); c1.textContent=d;
+      const c2=document.createElement("div"); c2.className="cell-amt"; c2.setAttribute("contenteditable","true"); c2.textContent=fmt(a);
+      row.append(c1,c2); body.append(row);
+      subtotal+=Number(a||0);
     });
-
-    const foot = document.createElement("div");
-    foot.className = "subtotal";
-    foot.innerHTML = `<div style="text-align:right">Subtotal:</div><div style="text-align:right">${fmt(subtotal)}</div>`;
-
-    card.append(header, body, foot);
-    wrap.appendChild(card);
-    tablesContainer.appendChild(wrap);
+    const foot=document.createElement("div");
+    foot.className="subtotal";
+    foot.innerHTML=`<div style="text-align:right">Subtotal:</div><div style="text-align:right">${fmt(subtotal)}</div>`;
+    card.append(head,body,foot); wrap.append(card); tablesContainer.append(wrap);
   });
+
+  scaleToFitA4();
 }
 
-// ======= FORM EDITOR =======
-function renderForms() {
-  tableForms.innerHTML = "";
-  state.tables.forEach((table, tIndex) => {
-    const box = document.createElement("div");
-    box.className = "form-section";
+// ===== SCALE A4 =====
+function scaleToFitA4(){
+  const content=document.getElementById("capture");
+  const page=document.getElementById("a4page");
+  const scale= Math.min(1, page.clientHeight / content.scrollHeight);
+  content.style.transform=`scale(${scale})`;
+}
 
-    box.innerHTML = `
-      <input class="table-title" type="text" value="${table.title}" data-tindex="${tIndex}" />
+// ===== RENDER FORM =====
+function renderForms(){
+  tableForms.innerHTML="";
+  state.tables.forEach((table,tIndex)=>{
+    const box=document.createElement("div");
+    box.className="form-section";
+    box.innerHTML=`
+      <input class="table-title" type="text" value="${table.title}" />
       <div class="rows"></div>
       <div class="table-actions">
         <button class="add-row">+ Fila</button>
-        <button class="download-single">Descargar PNG de esta tabla</button>
-        <button class="dup-table">Duplicar</button>
-        <button class="move-up">↑ Subir</button>
-        <button class="move-down">↓ Bajar</button>
-        <button class="delete-table">Eliminar</button>
-      </div>
-    `;
-
-    // fila inputs
-    const rows = box.querySelector(".rows");
-    table.rows.forEach(([desc, amt], rIndex) => {
-      const r = document.createElement("div");
-      r.className = "row-form";
-      r.innerHTML = `
-        <input class="desc" type="text" value="${desc}" />
-        <input class="amt" type="number" value="${amt}" step="0.01" />
-        <button class="icon-btn dup-row" title="Duplicar fila">⧉</button>
-        <button class="icon-btn up-row"  title="Fila arriba">▲</button>
-        <button class="icon-btn down-row" title="Fila abajo">▼</button>
-        <button class="icon-btn del-row" title="Eliminar fila">✕</button>
-      `;
-      // eventos fila
-      const descInput = r.querySelector(".desc");
-      const amtInput  = r.querySelector(".amt");
-      const dupBtn    = r.querySelector(".dup-row");
-      const upBtn     = r.querySelector(".up-row");
-      const downBtn   = r.querySelector(".down-row");
-      const delBtn    = r.querySelector(".del-row");
-
-      descInput.oninput = e => { state.tables[tIndex].rows[rIndex][0] = e.target.value; renderPreview(); };
-      amtInput.oninput  = e => { state.tables[tIndex].rows[rIndex][1] = parseFloat(e.target.value || 0); renderPreview(); };
-
-      dupBtn.onclick  = () => { state.tables[tIndex].rows.splice(rIndex+1,0,[...state.tables[tIndex].rows[rIndex]]); renderForms(); renderPreview(); };
-      upBtn.onclick   = () => { if(rIndex>0){ const arr=state.tables[tIndex].rows; [arr[rIndex-1],arr[rIndex]]=[arr[rIndex],arr[rIndex-1]]; renderForms(); renderPreview(); } };
-      downBtn.onclick = () => { const arr=state.tables[tIndex].rows; if(rIndex<arr.length-1){ [arr[rIndex+1],arr[rIndex]]=[arr[rIndex],arr[rIndex+1]]; renderForms(); renderPreview(); } };
-      delBtn.onclick  = () => { state.tables[tIndex].rows.splice(rIndex,1); renderForms(); renderPreview(); };
-
-      rows.appendChild(r);
+        <button class="download-single">PNG</button>
+        <button class="dup-table">📄</button>
+        <button class="move-up">🔼</button>
+        <button class="move-down">🔽</button>
+        <button class="delete-table">🗑</button>
+      </div>`;
+    const rows=box.querySelector(".rows");
+    table.rows.forEach(([desc,amt],rIndex)=>{
+      const r=document.createElement("div");
+      r.className="row-form";
+      r.innerHTML=`
+        <input class="desc" type="text" value="${desc}"/>
+        <input class="amt" type="number" value="${amt}"/>
+        <button class="dup-row">⧉</button>
+        <button class="up-row">▲</button>
+        <button class="down-row">▼</button>
+        <button class="del-row">✕</button>`;
+      const d=r.querySelector(".desc"),a=r.querySelector(".amt");
+      d.oninput=e=>{state.tables[tIndex].rows[rIndex][0]=e.target.value;renderPreview();}
+      a.oninput=e=>{state.tables[tIndex].rows[rIndex][1]=parseFloat(e.target.value||0);renderPreview();}
+      r.querySelector(".dup-row").onclick=()=>{state.tables[tIndex].rows.splice(rIndex+1,0,[...state.tables[tIndex].rows[rIndex]]);renderForms();renderPreview();}
+      r.querySelector(".up-row").onclick=()=>{const arr=state.tables[tIndex].rows;if(rIndex>0)[arr[rIndex-1],arr[rIndex]]=[arr[rIndex],arr[rIndex-1]];renderForms();renderPreview();}
+      r.querySelector(".down-row").onclick=()=>{const arr=state.tables[tIndex].rows;if(rIndex<arr.length-1)[arr[rIndex+1],arr[rIndex]]=[arr[rIndex],arr[rIndex+1]];renderForms();renderPreview();}
+      r.querySelector(".del-row").onclick=()=>{state.tables[tIndex].rows.splice(rIndex,1);renderForms();renderPreview();}
+      rows.append(r);
     });
-
-    // acciones de tabla
-    const titleInput = box.querySelector(".table-title");
-    titleInput.oninput = e => { state.tables[tIndex].title = e.target.value; renderPreview(); };
-
-    box.querySelector(".add-row").onclick = () => { state.tables[tIndex].rows.push(["Nuevo item",0]); renderForms(); renderPreview(); };
-    box.querySelector(".download-single").onclick = () => downloadSingle(tIndex);
-    box.querySelector(".dup-table").onclick = () => { state.tables.splice(tIndex+1,0, structuredClone(state.tables[tIndex])); renderForms(); renderPreview(); };
-    box.querySelector(".move-up").onclick = () => { if(tIndex>0){ const a=state.tables; [a[tIndex-1],a[tIndex]]=[a[tIndex],a[tIndex-1]]; renderForms(); renderPreview(); } };
-    box.querySelector(".move-down").onclick = () => { const a=state.tables; if(tIndex<a.length-1){ [a[tIndex+1],a[tIndex]]=[a[tIndex],a[tIndex+1]]; renderForms(); renderPreview(); } };
-    box.querySelector(".delete-table").onclick = () => { state.tables.splice(tIndex,1); renderForms(); renderPreview(); };
-
-    tableForms.appendChild(box);
+    box.querySelector(".table-title").oninput=e=>{state.tables[tIndex].title=e.target.value;renderPreview();}
+    box.querySelector(".add-row").onclick=()=>{state.tables[tIndex].rows.push(["Nuevo item",0]);renderForms();renderPreview();}
+    box.querySelector(".download-single").onclick=()=>downloadSingle(tIndex);
+    box.querySelector(".dup-table").onclick=()=>{state.tables.splice(tIndex+1,0,structuredClone(state.tables[tIndex]));renderForms();renderPreview();}
+    box.querySelector(".move-up").onclick=()=>{if(tIndex>0){const a=state.tables;[a[tIndex-1],a[tIndex]]=[a[tIndex],a[tIndex-1]];renderForms();renderPreview();}}
+    box.querySelector(".move-down").onclick=()=>{const a=state.tables;if(tIndex<a.length-1){[a[tIndex+1],a[tIndex]]=[a[tIndex],a[tIndex+1]];renderForms();renderPreview();}}
+    box.querySelector(".delete-table").onclick=()=>{state.tables.splice(tIndex,1);renderForms();renderPreview();}
+    tableForms.append(box);
   });
 }
 
-// ======= DESCARGAS =======
+// ===== DESCARGAS =====
 async function downloadSingle(index){
-  const wrap = document.getElementById(`wrap-${index}`);
-  // Clon con padding propio para incluir halo/sombra sin corte y transparencia
-  const clone = wrap.cloneNode(true);
-  clone.style.position = "fixed";
-  clone.style.left = "-99999px";
-  clone.style.top = "0";
-  document.body.appendChild(clone);
-  const canvas = await html2canvas(clone, { scale: 2, backgroundColor: null });
-  document.body.removeChild(clone);
-
-  const a = document.createElement("a");
-  a.download = `${state.tables[index].title.replace(/\s+/g,"_")}.png`;
-  a.href = canvas.toDataURL("image/png");
+  const wrap=document.querySelectorAll(".tableWrap")[index];
+  const canvas=await html2canvas(wrap,{scale:2,backgroundColor:null});
+  const a=document.createElement("a");
+  a.download=`${state.tables[index].title.replace(/\s+/g,"_")}.png`;
+  a.href=canvas.toDataURL("image/png");
   a.click();
 }
 
-document.getElementById("downloadPNG").onclick = async () => {
-  const node = document.getElementById("capture");
-  const canvas = await html2canvas(node, { scale: 2, backgroundColor: null });
-  const a = document.createElement("a");
-  a.download = "cotizacion-elconix.png";
-  a.href = canvas.toDataURL("image/png");
-  a.click();
+document.getElementById("downloadPDF").onclick=async()=>{
+  const node=document.getElementById("capture");
+  const canvas=await html2canvas(node,{scale:2,backgroundColor:"#fff"});
+  const imgData=canvas.toDataURL("image/png");
+  const pdf=new jspdf.jsPDF({orientation:"portrait",unit:"px",format:"a4"});
+  const w=pdf.internal.pageSize.getWidth(),h=pdf.internal.pageSize.getHeight();
+  pdf.addImage(imgData,"PNG",0,0,w,h);
+  pdf.save(`${state.title.replace(/\s+/g,"_")}.pdf`);
 };
 
-// ======= LOGOS =======
-document.getElementById("logoClient").onchange = async e => {
-  if(e.target.files?.[0]) { state.clientLogo = await fileToDataURL(e.target.files[0]); renderPreview(); }
-};
-document.getElementById("logoOwn").onchange = async e => {
-  if(e.target.files?.[0]) { state.ownLogo = await fileToDataURL(e.target.files[0]); renderPreview(); }
-};
+// ===== LOGOS =====
+document.getElementById("logoClient").onchange=async e=>{
+  if(e.target.files[0]){state.clientLogo=await fileToDataURL(e.target.files[0]);renderPreview();}
+}
+document.getElementById("logoOwn").onchange=async e=>{
+  if(e.target.files[0]){state.ownLogo=await fileToDataURL(e.target.files[0]);renderPreview();}
+}
 
-// ======= CONTEXT MENU (aplica a selección) =======
+// ===== MENÚ FORMATO =====
+function showToast(msg){
+  const el=document.createElement("div");
+  el.className="toast"; el.textContent=msg;
+  document.body.append(el);
+  requestAnimationFrame(()=>el.style.opacity=1);
+  setTimeout(()=>{el.style.opacity=0;setTimeout(()=>el.remove(),200)},1400);
+}
 function applyStyleToSelection(styleObj){
-  const sel = window.getSelection();
-  if(!sel || sel.rangeCount===0) return;
-  const range = sel.getRangeAt(0);
-  if(range.collapsed) {
-    // sin selección: aplicar al nodo contenteditable contenedor
-    const parent = range.startContainer.parentElement.closest('[contenteditable="true"]');
-    if(parent){ Object.assign(parent.style, styleObj); }
-    return;
-  }
-  // con selección: envolver en <span>
-  const span = document.createElement('span');
-  Object.assign(span.style, styleObj);
-  try {
-    // divide y envuelve la selección
-    span.appendChild(range.extractContents());
-    range.insertNode(span);
-    // limpiar selección
-    sel.removeAllRanges();
-  } catch(e) {
-    // fallback: aplicar al contenedor
-    const parent = range.commonAncestorContainer.parentElement.closest('[contenteditable="true"]');
-    if(parent){ Object.assign(parent.style, styleObj); }
-  }
+  const sel=window.getSelection();
+  if(!sel||sel.rangeCount===0||sel.isCollapsed){showToast("Selecciona el texto para aplicar formato");return;}
+  const range=sel.getRangeAt(0);
+  const span=document.createElement("span");
+  Object.assign(span.style,styleObj);
+  span.appendChild(range.extractContents());
+  range.insertNode(span);
+  sel.removeAllRanges();
 }
-
-document.addEventListener("contextmenu", (e)=>{
-  const t = e.target;
-  if(t && t.isContentEditable){
+document.addEventListener("contextmenu",e=>{
+  if(e.target && e.target.isContentEditable){
     e.preventDefault();
-    const menu = document.createElement("div");
-    menu.className = "context-menu";
-    menu.innerHTML = `
-      <div><strong style="padding:6px 10px; display:block">Formato</strong></div>
+    const m=document.createElement("div");
+    m.className="context-menu";
+    m.innerHTML=`
+      <div><strong style="padding:6px 10px;display:block">Formato</strong></div>
       <div class="group">
         <button data-type="font" data-val="ClanOT-NarrowBook">Fuente: Book</button>
         <button data-type="font" data-val="ClanOT-NarrowMedium">Fuente: Medium</button>
@@ -270,32 +201,26 @@ document.addEventListener("contextmenu", (e)=>{
         <button data-type="size" data-val="12">Tamaño: 12</button>
         <button data-type="size" data-val="14">Tamaño: 14</button>
         <button data-type="size" data-val="16">Tamaño: 16</button>
-      </div>
-    `;
-    document.body.appendChild(menu);
-    menu.style.left = `${e.pageX}px`;
-    menu.style.top  = `${e.pageY}px`;
-
-    menu.querySelectorAll("button").forEach(btn=>{
-      btn.onclick = ()=>{
-        const type = btn.dataset.type, val = btn.dataset.val;
-        if(type==="font") applyStyleToSelection({ fontFamily: `"${val}", Arial, sans-serif` });
-        if(type==="size") applyStyleToSelection({ fontSize: `${val}px` });
-        menu.remove();
+      </div>`;
+    document.body.append(m);
+    m.style.left=e.pageX+"px";m.style.top=e.pageY+"px";
+    m.querySelectorAll("button").forEach(b=>{
+      b.onclick=()=>{
+        const t=b.dataset.type,v=b.dataset.val;
+        if(t==="font")applyStyleToSelection({fontFamily:`"${v}",Arial,sans-serif`});
+        if(t==="size")applyStyleToSelection({fontSize:`${v}px`});
+        m.remove();
       };
     });
-    document.addEventListener("click", ()=>menu.remove(), { once:true });
+    document.addEventListener("click",()=>m.remove(),{once:true});
   }
 });
 
-// ======= CONTROLES GENERALES =======
-document.getElementById("addTable").onclick = () => {
-  state.tables.push({ title:"Nueva Tabla", rows:[] });
-  renderForms(); renderPreview();
-};
-titleInput.oninput = e => { state.title = e.target.value; renderPreview(); };
-noteInput.oninput  = e => { state.note  = e.target.value;  renderPreview(); };
+// ===== GENERAL =====
+titleInput.oninput=e=>{state.title=e.target.value;renderPreview();}
+noteInput.oninput=e=>{state.note=e.target.value;renderPreview();}
+document.getElementById("addTable").onclick=()=>{state.tables.push({title:"Nueva Tabla",rows:[]});renderForms();renderPreview();}
+window.addEventListener("resize",scaleToFitA4);
 
-// ======= INIT =======
-renderForms();
-renderPreview();
+// ===== INIT =====
+renderForms(); renderPreview();
