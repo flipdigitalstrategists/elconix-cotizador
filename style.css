@@ -88,7 +88,7 @@ button {
 .rows { display: flex; flex-direction: column; gap: 4px; }
 .row-form {
   display: grid;
-  grid-template-columns: 1fr 90px repeat(4, 26px);
+  grid-template-columns: 1fr 90px repeat(4, 28px);
   gap: 4px;
   align-items: center;
 }
@@ -102,10 +102,10 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 26px;
+  height: 28px;
   border-radius: 4px;
   color: #fff;
-  font-size: 10px;
+  font-size: 14px;
 }
 .del-row { background: #ff5a5a; }
 .up-row, .down-row { background: #8a8f98; }
@@ -136,7 +136,7 @@ button {
 .canvas {
   width: 90%;
   max-width: 700px;
-  margin: 30px auto;
+  margin: 20px auto 30px;
   font-size: 13px;
   transform-origin: top center;
 }
@@ -148,10 +148,12 @@ button {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
-  height: 40px;
+  margin-top: 10px;
+  padding: 0 10px;
+  height: 28px;
 }
 .logosBar img {
-  max-height: 40px;
+  max-height: 28px;
   width: auto;
   object-fit: contain;
 }
