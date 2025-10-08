@@ -10,9 +10,7 @@
   font-display: swap;
 }
 
-/* ========================
-   BASE
-======================== */
+/* === BASE === */
 body {
   font-family: "ClanOT-NarrowBook", Arial, sans-serif;
   background: #f8faf8;
@@ -29,18 +27,11 @@ h1 {
 
 .container {
   display: grid;
-  grid-template-columns: 350px 1fr;
+  grid-template-columns: 370px 1fr;
   gap: 20px;
 }
 
-button {
-  cursor: pointer;
-  font-family: inherit;
-}
-
-/* ========================
-   PANEL IZQUIERDO
-======================== */
+/* === PANEL IZQUIERDO === */
 .editor {
   background: white;
   padding: 20px;
@@ -49,6 +40,8 @@ button {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  height: 90vh;
+  overflow-y: auto;
 }
 
 .editor input[type="text"],
@@ -67,12 +60,14 @@ button {
   font-family: "ClanOT-NarrowMedium";
 }
 
-.editor button {
+button {
   border: none;
   border-radius: 8px;
   padding: 8px 12px;
   font-size: 13px;
   transition: 0.2s ease;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 #addTable {
@@ -94,9 +89,7 @@ button {
   background: #022838;
 }
 
-/* ========================
-   FORMULARIO DE TABLAS
-======================== */
+/* === SECCIÓN DE TABLAS === */
 .form-section {
   background: #f9fbf8;
   border: 1px solid #e2e8e2;
@@ -143,7 +136,6 @@ button {
 button.del-row {
   background: #ff5a5a;
   color: white;
-  border: none;
   border-radius: 6px;
   padding: 4px 8px;
   font-size: 12px;
@@ -152,16 +144,26 @@ button.del-row {
 button.add-row {
   background: #77ab30;
   color: white;
-  border: none;
   border-radius: 6px;
   padding: 5px 10px;
   font-size: 12px;
   margin-top: 4px;
 }
 
-/* ========================
-   PREVIEW
-======================== */
+button.download-single {
+  background: #04334e;
+  color: white;
+  font-size: 12px;
+  margin-top: 8px;
+  border-radius: 6px;
+  width: 100%;
+}
+
+button.download-single:hover {
+  background: #022838;
+}
+
+/* === PREVIEW === */
 .preview {
   background: white;
   padding: 30px;
@@ -178,8 +180,6 @@ button.add-row {
   width: 100%;
   max-width: 1000px;
   box-shadow: 0 12px 30px rgba(119, 171, 48, 0.15);
-  font-size: 14px;
-  color: #333;
 }
 
 .title {
@@ -188,7 +188,6 @@ button.add-row {
   font-size: 22px;
   color: #333;
   margin-bottom: 25px;
-  letter-spacing: 0.5px;
 }
 
 .note {
@@ -199,9 +198,7 @@ button.add-row {
   font-style: italic;
 }
 
-/* ========================
-   TABLAS DE PREVIEW
-======================== */
+/* === TABLAS === */
 .table {
   border-radius: 14px;
   overflow: hidden;
@@ -219,14 +216,53 @@ button.add-row {
   text-transform: uppercase;
   padding: 10px 20px;
   font-size: 13px;
-  letter-spacing: 0.5px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 }
 
-.download-single {
-  background: rgba(255, 255, 255, 0.2);
+.table-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 20px;
+  font-size: 13px;
+  border-bottom: 1px solid #edf3ea;
+  color: #333;
+}
+
+.table-row:nth-child(even) {
+  background: #f9fbf8;
+}
+
+.subtotal {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px 20px;
+  font-weight: bold;
+  color: #333;
+  background: rgba(119, 171, 48, 0.05);
+  font-family: "ClanOT-NarrowMedium";
+}
+
+/* === MENÚ CONTEXTUAL === */
+.context-menu {
+  position: absolute;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+  z-index: 9999;
+  padding: 4px;
+}
+
+.context-menu button {
+  display: block;
+  background: none;
   border: none;
-  color: white;
-  font-size: 11
+  padding: 6px 10px;
+  width: 100%;
+  text-align: left;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.context-menu button:hover {
+  background: #f2f2f2;
+}
