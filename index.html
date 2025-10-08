@@ -6,6 +6,7 @@
   <title>Elconix Cotizador</title>
   <link rel="stylesheet" href="style.css"/>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
   <div class="container">
@@ -30,24 +31,25 @@
       <button id="addTable">+ Añadir tabla</button>
       <div id="tableForms"></div>
 
-      <label for="noteInput">Nota (opcional)</label>
-      <input id="noteInput" type="text" placeholder="Ej. Precios no incluyen ITBMS (sumar el 7%)"/>
+      <label for="noteInput">Nota</label>
+      <input id="noteInput" type="text" value="Precios no incluye ITBMS, sumar el 7%"/>
 
-      <button id="downloadPNG">Descargar PNG Global</button>
+      <button id="downloadPDF">Descargar PDF Global</button>
     </aside>
 
-    <!-- PREVIEW / PNG -->
+    <!-- PREVIEW -->
     <main class="preview">
-      <div id="capture" class="canvas">
-        <!-- Cabecera logos (solo visible si hay logos) -->
-        <div id="logosBar" class="logosBar hidden">
-          <img id="clientImg" alt="logo cliente"/>
-          <img id="ownImg" alt="logo Elconix"/>
-        </div>
+      <div id="a4page">
+        <div id="capture" class="canvas">
+          <div id="logosBar" class="logosBar hidden">
+            <img id="clientImg" alt="logo cliente"/>
+            <img id="ownImg" alt="logo Elconix"/>
+          </div>
 
-        <h2 id="titleDisplay" class="title"></h2>
-        <div id="tablesContainer"></div>
-        <div id="noteDisplay" class="note"></div>
+          <h2 id="titleDisplay" class="title"></h2>
+          <div id="tablesContainer"></div>
+          <div id="noteDisplay" class="note"></div>
+        </div>
       </div>
     </main>
   </div>
