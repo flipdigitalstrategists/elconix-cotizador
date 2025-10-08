@@ -206,8 +206,10 @@ button.add-row {
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 8px 20px rgba(119, 171, 48, 0.15);
-  margin-bottom: 25px;
+  margin: 0 auto 25px auto;
   border: 1px solid #edf3ea;
+  width: 60%;
+  min-width: 550px;
 }
 
 .table-header {
@@ -218,27 +220,13 @@ button.add-row {
   padding: 10px 20px;
   font-size: 13px;
   letter-spacing: 0.5px;
-}
-
-.table-row {
   display: flex;
   justify-content: space-between;
-  padding: 8px 20px;
-  font-size: 13px;
-  border-bottom: 1px solid #edf3ea;
-  color: #333;
+  align-items: center;
 }
 
-.table-row:nth-child(even) {
-  background: #f9fbf8;
-}
-
-.subtotal {
-  display: flex;
-  justify-content: flex-end;
-  padding: 10px 20px;
-  font-weight: bold;
-  color: #333;
-  background: rgba(119, 171, 48, 0.05);
-  font-family: "ClanOT-NarrowMedium";
-}
+.download-single {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 11
