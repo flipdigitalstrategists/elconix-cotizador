@@ -29,29 +29,24 @@ const state = {
   ],
 };
 
+// === ELEMENTOS ===
 const titleInput = document.getElementById("titleInput");
 const noteInput = document.getElementById("noteInput");
 const titleDisplay = document.getElementById("titleDisplay");
 const noteDisplay = document.getElementById("noteDisplay");
-const container = document.getElementById("tablesContainer");
+const tablesContainer = document.getElementById("tablesContainer");
+const tableForms = document.getElementById("tableForms");
 
-titleInput.oninput = (e) => {
-  state.title = e.target.value;
-  render();
-};
-noteInput.oninput = (e) => {
-  state.note = e.target.value;
-  render();
-};
-
+// === FORMATEADOR DE MONEDA ===
 function fmt(n) {
   return "$" + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2 });
 }
 
-function render() {
+// === RENDER DE PREVISUALIZACIÓN ===
+function renderPreview() {
   titleDisplay.textContent = state.title;
   noteDisplay.textContent = state.note;
-  container.innerHTML = "";
+  tablesContainer.innerHTML = "";
 
   state.tables.forEach((table) => {
     const div = document.createElement("div");
@@ -76,10 +71,104 @@ function render() {
     sub.innerHTML = `Subtotal: ${fmt(subtotal)}`;
     div.appendChild(sub);
 
-    container.appendChild(div);
+    tablesContainer.appendChild(div);
   });
 }
 
+// === RENDER DEL FORMULARIO ===
+function renderForms() {
+  tableForms.innerHTML = "";
+  state.tables.forEach((table, tIndex) => {
+    const section = document.createElement("div");
+    section.className = "form-section";
+
+    section.innerHTML = `
+      <input class="table-title" type="text" value="${table.title}" data-tindex="${tIndex}" />
+      <div class="rows"></div>
+      <button class="add-row" data-tindex="${tIndex}">+ Fila</button>
+    `;
+
+    const rowsContainer = section.querySelector(".rows");
+
+    table.rows.forEach(([desc, amt], rIndex) => {
+      const rowDiv = document.createElement("div");
+      rowDiv.className = "row-form";
+      rowDiv.innerHTML = `
+        <input class="desc" type="text" value="${desc}" data-tindex="${tIndex}" data-rindex="${rIndex}" />
+        <input class="amt" type="number" value="${amt}" data-tindex="${tIndex}" data-rindex="${rIndex}" />
+        <button class="del-row" data-tindex="${tIndex}" data-rindex="${rIndex}">✕</button>
+      `;
+      rowsContainer.appendChild(rowDiv);
+    });
+
+    tableForms.appendChild(section);
+  });
+  addListeners();
+}
+
+// === EVENTOS ===
+function addListeners() {
+  document.querySelectorAll(".table-title").forEach((el) => {
+    el.oninput = (e) => {
+      const idx = e.target.dataset.tindex;
+      state.tables[idx].title = e.target.value;
+      renderPreview();
+    };
+  });
+
+  document.querySelectorAll(".desc").forEach((el) => {
+    el.oninput = (e) => {
+      const { tindex, rindex } = e.target.dataset;
+      state.tables[tindex].rows[rindex][0] = e.target.value;
+      renderPreview();
+    };
+  });
+
+  document.querySelectorAll(".amt").forEach((el) => {
+    el.oninput = (e) => {
+      const { tindex, rindex } = e.target.dataset;
+      state.tables[tindex].rows[rindex][1] = parseFloat(e.target.value || 0);
+      renderPreview();
+    };
+  });
+
+  document.querySelectorAll(".del-row").forEach((btn) => {
+    btn.onclick = (e) => {
+      const { tindex, rindex } = e.target.dataset;
+      state.tables[tindex].rows.splice(rindex, 1);
+      renderForms();
+      renderPreview();
+    };
+  });
+
+  document.querySelectorAll(".add-row").forEach((btn) => {
+    btn.onclick = (e) => {
+      const { tindex } = e.target.dataset;
+      state.tables[tindex].rows.push(["Nuevo item", 0]);
+      renderForms();
+      renderPreview();
+    };
+  });
+}
+
+// === BOTONES PRINCIPALES ===
+document.getElementById("addTable").onclick = () => {
+  state.tables.push({ title: "Nueva Tabla", rows: [] });
+  renderForms();
+  renderPreview();
+};
+
+titleInput.oninput = (e) => {
+  state.title = e.target.value;
+  renderPreview();
+};
+
+noteInput.oninput = (e) => {
+  state.note = e.target.value;
+  renderPreview();
+};
+
+// === DESCARGAR PNG ===
 document.getElementById("downloadPNG").onclick = async () => {
   const el = document.getElementById("capture");
   const canvas = await html2canvas(el, { scale: 2 });
@@ -89,4 +178,6 @@ document.getElementById("downloadPNG").onclick = async () => {
   link.click();
 };
 
-render();
+// === INICIO ===
+renderForms();
+renderPreview();
