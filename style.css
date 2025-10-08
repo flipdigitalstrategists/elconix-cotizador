@@ -1,11 +1,13 @@
 @font-face {
   font-family: "ClanOT-NarrowBook";
-  src: url("fonts/ClanOT-NarrowBook.woff2") format("woff2");
+  src: url("fonts/ClanOT-NarrowBook.otf") format("opentype");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "ClanOT-NarrowMedium";
-  src: url("fonts/ClanOT-NarrowMedium.woff2") format("woff2");
+  src: url("fonts/ClanOT-NarrowMedium.otf") format("opentype");
+  font-display: swap;
 }
 
 body {
