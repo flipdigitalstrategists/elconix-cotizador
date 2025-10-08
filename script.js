@@ -1,256 +1,374 @@
-@font-face {
-  font-family: "ClanOT-NarrowBook";
-  src: url("fonts/ClanOT-NarrowBook.otf") format("opentype");
-}
-@font-face {
-  font-family: "ClanOT-NarrowMedium";
-  src: url("fonts/ClanOT-NarrowMedium.otf") format("opentype");
+// ======= STATE =======
+const state = {
+  title: "RESUMEN DE PROPUESTA ECONÓMICA",
+  note: "Precios no incluye ITBMS, sumar el 7%",
+  clientLogo: null,
+  ownLogo: null,
+  tables: [
+    {
+      title: "PAGOS ÚNICOS ERP Y POS",
+      rows: [
+        ["Set up CLOUD Elconix PLATAFORMA ELCONIX", 7500],
+        [
+          "Implementación x 250 hrs\nHoras para llevar todo el proceso de puesta en marcha.",
+          25000,
+        ],
+        ["Entrenamientos x10 hrs", 1500],
+        ["Adecuaciones menores x 100 hrs", 9500],
+        ["Integración con PAC WEB POS", 3000],
+        ["Aplicativo PDT ELCONIX", 5000],
+        ["Licencias 21 POS SERVER", 12600],
+      ],
+    },
+    {
+      title: "FORMA DE PAGO ERP Y POS",
+      rows: [
+        ["50% CONTRA FIRMA", 43017.5],
+        [
+          "50% EN DOCE (12) MENSUALIDADES de $3,584.79, PAGADERAS TREINTA (30) DÍAS DESPUÉS DEL APGO DEL ABONO INICIAL.",
+          43017.5,
+        ],
+      ],
+    },
+    {
+      title: "ANUALIDAD ERP Y POS",
+      rows: [
+        ["Licencias 15 Usuarios ERP PRO", 13500],
+        ["Licencias POS 39 usuarios punto de venta", 6435],
+        ["Anualidad de Mantenimiento API de Integración ENX", 1000],
+        ["ARPIA CREDITS", 1000],
+      ],
+    },
+  ],
+};
+
+// ===== UTIL =====
+const fmt = (n) =>
+  "$" + Number(n || 0).toLocaleString("en-US", { minimumFractionDigits: 2 });
+const fileToDataURL = (file) =>
+  new Promise((res) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result);
+    r.readAsDataURL(file);
+  });
+
+// ELEMENTOS
+const titleInput = document.getElementById("titleInput");
+const noteInput = document.getElementById("noteInput");
+const tableForms = document.getElementById("tableForms");
+const tablesContainer = document.getElementById("tablesContainer");
+const titleDisplay = document.getElementById("titleDisplay");
+const noteDisplay = document.getElementById("noteDisplay");
+const logosBar = document.getElementById("logosBar");
+const clientImg = document.getElementById("clientImg");
+const ownImg = document.getElementById("ownImg");
+
+// ===== RENDER PREVIEW =====
+function renderPreview() {
+  titleDisplay.textContent = state.title;
+  noteDisplay.textContent = state.note;
+
+  // Logos
+  if (state.clientLogo || state.ownLogo) {
+    logosBar.classList.remove("hidden");
+    if (state.clientLogo) {
+      clientImg.src = state.clientLogo;
+      clientImg.style.display = "block";
+    } else clientImg.style.display = "none";
+    if (state.ownLogo) {
+      ownImg.src = state.ownLogo;
+      ownImg.style.display = "block";
+    } else ownImg.style.display = "none";
+  } else logosBar.classList.add("hidden");
+
+  tablesContainer.innerHTML = "";
+  state.tables.forEach((table, i) => {
+    const wrap = document.createElement("div");
+    wrap.className = "tableWrap";
+    const card = document.createElement("div");
+    card.className = "table";
+
+    const head = document.createElement("div");
+    head.className = "table-header";
+    head.innerHTML = `<div>${table.title}</div><div style="text-align:right">MONTO</div>`;
+
+    const body = document.createElement("div");
+    body.className = "table-body";
+    let subtotal = 0;
+    table.rows.forEach(([d, a]) => {
+      const row = document.createElement("div");
+      row.className = "row";
+      const c1 = document.createElement("div");
+      c1.className = "cell-desc";
+      c1.setAttribute("contenteditable", "true");
+      c1.textContent = d;
+      const c2 = document.createElement("div");
+      c2.className = "cell-amt";
+      c2.setAttribute("contenteditable", "true");
+      c2.textContent = fmt(a);
+      row.append(c1, c2);
+      body.append(row);
+      subtotal += Number(a || 0);
+    });
+    const foot = document.createElement("div");
+    foot.className = "subtotal";
+    foot.innerHTML = `<div style="text-align:right">Subtotal:</div><div style="text-align:right">${fmt(
+      subtotal
+    )}</div>`;
+    card.append(head, body, foot);
+    wrap.append(card);
+    tablesContainer.append(wrap);
+  });
+
+  scaleToFitA4();
 }
 
-:root {
-  --green: #77AB30;
-  --green2: #8DC63F;
-  --text: #333;
-  --halo: 0 14px 32px rgba(119,171,48,.18);
+// ===== SCALE A4 =====
+function scaleToFitA4() {
+  const content = document.getElementById("capture");
+  const page = document.getElementById("a4page");
+  const scale = Math.min(1, page.clientHeight / content.scrollHeight);
+  content.style.transform = `scale(${scale})`;
 }
 
-/* Base */
-* { box-sizing: border-box; }
-body {
-  margin: 0;
-  padding: 20px;
-  background: #f6f8f6;
-  color: var(--text);
-  font-family: "ClanOT-NarrowBook", Arial, sans-serif;
-}
-h1 { font: 700 20px "ClanOT-NarrowMedium"; }
-.container {
-  display: grid;
-  grid-template-columns: 380px 1fr;
-  gap: 20px;
-}
-
-/* PANEL IZQUIERDO */
-.editor {
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0,0,0,.08);
-  padding: 20px;
-  height: 90vh;
-  overflow: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-.editor label {
-  font: 700 13px "ClanOT-NarrowMedium";
-  color: #586067;
-}
-.editor input {
-  border: 1px solid #dcdcdc;
-  border-radius: 8px;
-  padding: 8px;
-  font: inherit;
-  width: 100%;
-}
-.logoInputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-button {
-  cursor: pointer;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 10px;
-  font: 700 13px inherit;
-  transition: .2s ease;
-}
-#addTable { background: var(--green); color: #fff; }
-#addTable:hover { background: #5e8e27; }
-#downloadPDF { background: #04334e; color: #fff; margin-top: 8px; }
-#downloadPDF:hover { background: #022838; }
-
-/* Form de tablas */
-.form-section {
-  background: #f9fbf7;
-  border: 1px solid #e3e9e1;
-  border-radius: 12px;
-  padding: 10px;
-  margin-bottom: 14px;
-  box-shadow: 0 3px 8px rgba(119,171,48,.08);
-}
-.table-title {
-  width: 100%;
-  margin-bottom: 6px;
-  padding: 6px;
-  border: 1px solid #cfe3be;
-  border-radius: 8px;
-  background: #eaf3e3;
-  font: 700 13px "ClanOT-NarrowMedium";
-}
-.rows { display: flex; flex-direction: column; gap: 4px; }
-.row-form {
-  display: grid;
-  grid-template-columns: 1fr 90px repeat(4, 28px);
-  gap: 4px;
-  align-items: center;
-}
-.row-form input {
-  padding: 6px;
-  border: 1px solid #d1d1d1;
-  border-radius: 6px;
-  font-size: 12px;
-}
-.icon-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 28px;
-  border-radius: 4px;
-  color: #fff;
-  font-size: 14px;
-}
-.del-row { background: #ff5a5a; }
-.up-row, .down-row { background: #8a8f98; }
-.dup-row { background: #5b8e24; }
-.table-actions { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px; }
-.table-actions button { padding: 6px 8px; font-size: 12px; }
-
-/* PREVIEW Y HOJA A4 */
-.preview {
-  background: #eceeed;
-  border-radius: 16px;
-  box-shadow: inset 0 0 6px rgba(0,0,0,.08);
-  padding: 20px;
-  display: flex;
-  justify-content: center;
-}
-#a4page {
-  width: 794px;
-  height: 1123px;
-  background: #fff;
-  box-shadow: 0 0 20px rgba(0,0,0,.1);
-  border-radius: 8px;
-  overflow: hidden;
-  position: relative;
-  display: flex;
-  justify-content: center;
-}
-.canvas {
-  width: 90%;
-  max-width: 700px;
-  margin: 20px auto 30px;
-  font-size: 13px;
-  transform-origin: top center;
+// ===== RENDER FORM =====
+function renderForms() {
+  tableForms.innerHTML = "";
+  state.tables.forEach((table, tIndex) => {
+    const box = document.createElement("div");
+    box.className = "form-section";
+    box.innerHTML = `
+      <input class="table-title" type="text" value="${table.title}" />
+      <div class="rows"></div>
+      <div class="table-actions">
+        <button class="add-row">+ Fila</button>
+        <button class="download-single">PNG</button>
+        <button class="dup-table">📄</button>
+        <button class="move-up">🔼</button>
+        <button class="move-down">🔽</button>
+        <button class="delete-table">🗑️</button>
+      </div>`;
+    const rows = box.querySelector(".rows");
+    table.rows.forEach(([desc, amt], rIndex) => {
+      const r = document.createElement("div");
+      r.className = "row-form";
+      r.innerHTML = `
+        <input class="desc" type="text" value="${desc}"/>
+        <input class="amt" type="number" value="${amt}"/>
+        <button class="dup-row">🟩</button>
+        <button class="up-row">🔼</button>
+        <button class="down-row">🔽</button>
+        <button class="del-row">❌</button>`;
+      const d = r.querySelector(".desc"),
+        a = r.querySelector(".amt");
+      d.oninput = (e) => {
+        state.tables[tIndex].rows[rIndex][0] = e.target.value;
+        renderPreview();
+      };
+      a.oninput = (e) => {
+        state.tables[tIndex].rows[rIndex][1] = parseFloat(e.target.value || 0);
+        renderPreview();
+      };
+      r.querySelector(".dup-row").onclick = () => {
+        state.tables[tIndex].rows.splice(rIndex + 1, 0, [
+          ...state.tables[tIndex].rows[rIndex],
+        ]);
+        renderForms();
+        renderPreview();
+      };
+      r.querySelector(".up-row").onclick = () => {
+        const arr = state.tables[tIndex].rows;
+        if (rIndex > 0)
+          [arr[rIndex - 1], arr[rIndex]] = [arr[rIndex], arr[rIndex - 1]];
+        renderForms();
+        renderPreview();
+      };
+      r.querySelector(".down-row").onclick = () => {
+        const arr = state.tables[tIndex].rows;
+        if (rIndex < arr.length - 1)
+          [arr[rIndex + 1], arr[rIndex]] = [arr[rIndex], arr[rIndex + 1]];
+        renderForms();
+        renderPreview();
+      };
+      r.querySelector(".del-row").onclick = () => {
+        state.tables[tIndex].rows.splice(rIndex, 1);
+        renderForms();
+        renderPreview();
+      };
+      rows.append(r);
+    });
+    box.querySelector(".table-title").oninput = (e) => {
+      state.tables[tIndex].title = e.target.value;
+      renderPreview();
+    };
+    box.querySelector(".add-row").onclick = () => {
+      state.tables[tIndex].rows.push(["Nuevo item", 0]);
+      renderForms();
+      renderPreview();
+    };
+    box.querySelector(".download-single").onclick = () => downloadSingle(tIndex);
+    box.querySelector(".dup-table").onclick = () => {
+      state.tables.splice(
+        tIndex + 1,
+        0,
+        structuredClone(state.tables[tIndex])
+      );
+      renderForms();
+      renderPreview();
+    };
+    box.querySelector(".move-up").onclick = () => {
+      if (tIndex > 0) {
+        const a = state.tables;
+        [a[tIndex - 1], a[tIndex]] = [a[tIndex], a[tIndex - 1]];
+        renderForms();
+        renderPreview();
+      }
+    };
+    box.querySelector(".move-down").onclick = () => {
+      const a = state.tables;
+      if (tIndex < a.length - 1) {
+        [a[tIndex + 1], a[tIndex]] = [a[tIndex], a[tIndex + 1]];
+        renderForms();
+        renderPreview();
+      }
+    };
+    box.querySelector(".delete-table").onclick = () => {
+      state.tables.splice(tIndex, 1);
+      renderForms();
+      renderPreview();
+    };
+    tableForms.append(box);
+  });
 }
 
-/* Logos */
-.logosBar {
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  margin-top: 10px;
-  padding: 0 10px;
-  height: 28px;
-}
-.logosBar img {
-  max-height: 28px;
-  width: auto;
-  object-fit: contain;
-}
-.hidden { display: none !important; }
-
-.title {
-  text-align: center;
-  font: 800 20px "ClanOT-NarrowMedium";
-  margin: 10px 0 20px;
-}
-.note {
-  font-style: italic;
-  color: #7b8288;
-  font-size: 12px;
-  text-align: right;
-  margin-top: 16px;
+// ===== DESCARGAS =====
+async function downloadSingle(index) {
+  const wrap = document.querySelectorAll(".tableWrap")[index];
+  const canvas = await html2canvas(wrap, { scale: 2, backgroundColor: null });
+  const a = document.createElement("a");
+  a.download = `${state.tables[index].title.replace(/\s+/g, "_")}.png`;
+  a.href = canvas.toDataURL("image/png");
+  a.click();
 }
 
-/* TABLAS */
-.tableWrap {
-  margin-bottom: 20px;
-}
-.table {
-  background: #fff;
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid #e4eade;
-  box-shadow: var(--halo);
-}
-.table-header {
-  background: linear-gradient(180deg, #8DC63F 0%, #77AB30 100%);
-  color: #fff;
-  font: 800 14px "ClanOT-NarrowMedium";
-  text-transform: uppercase;
-  padding: 10px 20px;
-  display: grid;
-  grid-template-columns: 1fr 120px;
-}
-.table-body .row {
-  display: grid;
-  grid-template-columns: 1fr 120px;
-  border-top: 1px solid #e8ece4;
-}
-.row:nth-child(even) { background: #fbfdf9; }
-.cell-desc {
-  padding: 8px 14px;
-  line-height: 1.2;
-  white-space: pre-wrap;
-}
-.cell-amt {
-  padding: 8px 14px;
-  text-align: right;
-  font: 700 13px "ClanOT-NarrowMedium";
-  color: #4c8e24;
-}
-.subtotal {
-  background: rgba(141,198,63,.12);
-  display: grid;
-  grid-template-columns: 1fr 120px;
-  padding: 8px 14px;
-  font: 700 13px "ClanOT-NarrowMedium";
-}
+document.getElementById("downloadPDF").onclick = async () => {
+  const node = document.getElementById("capture");
+  const canvas = await html2canvas(node, {
+    scale: 2,
+    backgroundColor: "#fff",
+    x: 20,
+    y: 20,
+    scrollX: 0,
+    scrollY: 0,
+    windowWidth: document.body.scrollWidth,
+    windowHeight: document.body.scrollHeight,
+  });
 
-/* Context menu y toast */
-.context-menu {
-  position: absolute;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  box-shadow: 0 6px 16px rgba(0,0,0,.15);
-  z-index: 9999;
-  padding: 6px;
-  min-width: 180px;
+  const imgData = canvas.toDataURL("image/png");
+  const pdf = new jspdf.jsPDF({
+    orientation: "portrait",
+    unit: "px",
+    format: "a4",
+  });
+
+  const w = pdf.internal.pageSize.getWidth();
+  const h = pdf.internal.pageSize.getHeight();
+  const margin = 30;
+  const imgW = w - margin * 2;
+  const imgH = (canvas.height * imgW) / canvas.width;
+
+  pdf.addImage(imgData, "PNG", margin, margin, imgW, imgH);
+  pdf.save(`${state.title.replace(/\s+/g, "_")}.pdf`);
+};
+
+// ===== LOGOS =====
+document.getElementById("logoClient").onchange = async (e) => {
+  if (e.target.files[0]) {
+    state.clientLogo = await fileToDataURL(e.target.files[0]);
+    renderPreview();
+  }
+};
+document.getElementById("logoOwn").onchange = async (e) => {
+  if (e.target.files[0]) {
+    state.ownLogo = await fileToDataURL(e.target.files[0]);
+    renderPreview();
+  }
+};
+
+// ===== MENÚ FORMATO =====
+function showToast(msg) {
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  document.body.append(el);
+  requestAnimationFrame(() => (el.style.opacity = 1));
+  setTimeout(() => {
+    el.style.opacity = 0;
+    setTimeout(() => el.remove(), 200);
+  }, 1400);
 }
-.context-menu .group { padding: 4px 0; border-top: 1px solid #eee; }
-.context-menu button {
-  display: block;
-  width: 100%;
-  background: none;
-  border: 0;
-  text-align: left;
-  padding: 6px 10px;
-  font: 12px inherit;
-  cursor: pointer;
+function applyStyleToSelection(styleObj) {
+  const sel = window.getSelection();
+  if (!sel || sel.rangeCount === 0 || sel.isCollapsed) {
+    showToast("Selecciona el texto para aplicar formato");
+    return;
+  }
+  const range = sel.getRangeAt(0);
+  const span = document.createElement("span");
+  Object.assign(span.style, styleObj);
+  span.appendChild(range.extractContents());
+  range.insertNode(span);
+  sel.removeAllRanges();
 }
-.context-menu button:hover { background: #f2f4f5; }
-.toast {
-  position: fixed;
-  left: 50%;
-  top: 20px;
-  transform: translateX(-50%);
-  background: rgba(0,0,0,.75);
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 8px;
-  font: 12px Arial, sans-serif;
-  z-index: 10000;
-  opacity: 0;
-  transition: .2s;
-}
+document.addEventListener("contextmenu", (e) => {
+  if (e.target && e.target.isContentEditable) {
+    e.preventDefault();
+    const m = document.createElement("div");
+    m.className = "context-menu";
+    m.innerHTML = `
+      <div><strong style="padding:6px 10px;display:block">Formato</strong></div>
+      <div class="group">
+        <button data-type="font" data-val="ClanOT-NarrowBook">Fuente: Book</button>
+        <button data-type="font" data-val="ClanOT-NarrowMedium">Fuente: Medium</button>
+      </div>
+      <div class="group">
+        <button data-type="size" data-val="12">Tamaño: 12</button>
+        <button data-type="size" data-val="14">Tamaño: 14</button>
+        <button data-type="size" data-val="16">Tamaño: 16</button>
+      </div>`;
+    document.body.append(m);
+    m.style.left = e.pageX + "px";
+    m.style.top = e.pageY + "px";
+    m.querySelectorAll("button").forEach((b) => {
+      b.onclick = () => {
+        const t = b.dataset.type,
+          v = b.dataset.val;
+        if (t === "font")
+          applyStyleToSelection({ fontFamily: `"${v}",Arial,sans-serif` });
+        if (t === "size") applyStyleToSelection({ fontSize: `${v}px` });
+        m.remove();
+      };
+    });
+    document.addEventListener("click", () => m.remove(), { once: true });
+  }
+});
+
+// ===== GENERAL =====
+titleInput.oninput = (e) => {
+  state.title = e.target.value;
+  renderPreview();
+};
+noteInput.oninput = (e) => {
+  state.note = e.target.value;
+  renderPreview();
+};
+document.getElementById("addTable").onclick = () => {
+  state.tables.push({ title: "Nueva Tabla", rows: [] });
+  renderForms();
+  renderPreview();
+};
+window.addEventListener("resize", scaleToFitA4);
+
+// ===== INIT =====
+renderForms();
+renderPreview();
